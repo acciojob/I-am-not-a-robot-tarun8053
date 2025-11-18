@@ -1,4 +1,4 @@
-//your code
+//your code here
 const imageList = [
   "https://picsum.photos/id/237/200/300",
   "https://picsum.photos/seed/picsum/200/300",
@@ -17,16 +17,11 @@ const messagePara = document.getElementById("para");
 const msgH = document.getElementById("h");
 
 function loadImages() {
-  // pick a random image to duplicate
   const duplicateImg = imageList[Math.floor(Math.random() * imageList.length)];
-
-  // create 6 images list (5 unique + 1 duplicate)
   shuffled = [...imageList, duplicateImg];
 
-  // shuffle them
   shuffled.sort(() => Math.random() - 0.5);
 
-  // display
   imagesDiv.innerHTML = "";
   shuffled.forEach((src, index) => {
     const img = document.createElement("img");
@@ -41,17 +36,20 @@ function loadImages() {
 }
 
 function selectImage(img) {
-  if (selectedImages.length === 2) return; // prevent more than 2 clicks
+  if (selectedImages.length === 2) return;
 
   img.classList.add("selected");
   selectedImages.push(img);
 
-  // state 2 → show reset button
-  resetBtn.style.display = "block";
+  resetBtn.style.display = "block"; // show reset after 1st click
 
-  // state 3 → exactly 2 images clicked → show verify
   if (selectedImages.length === 2) {
-    verifyBtn.style.display = "block";
+    const [img1, img2] = selectedImages;
+
+    // Only show verify if identical
+    if (img1.src === img2.src) {
+      verifyBtn.style.display = "block";
+    }
   }
 }
 
@@ -86,5 +84,4 @@ function verifySelection() {
   }
 }
 
-// initial load
 loadImages();
