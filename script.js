@@ -1,87 +1,80 @@
-//your code here
-const imageList = [
-  "https://picsum.photos/id/237/200/300",
-  "https://picsum.photos/seed/picsum/200/300",
-  "https://picsum.photos/200/300?grayscale",
-  "https://picsum.photos/200/300/",
-  "https://picsum.photos/200/300.jpg",
+const imagesArr = [
+  "https://picsum.photos/id/10/150",
+  "https://picsum.photos/id/20/150",
+  "https://picsum.photos/id/30/150",
+  "https://picsum.photos/id/40/150",
+  "https://picsum.photos/id/50/150"
 ];
 
-let shuffled = [];
-let selectedImages = [];
+let container = document.getElementById("image-container");
+let resetBtn = document.getElementById("reset");
+let verifyBtn = document.getElementById("verify");
+let para = document.getElementById("para");
 
-const imagesDiv = document.getElementById("images");
-const resetBtn = document.getElementById("reset");
-const verifyBtn = document.getElementById("verify");
-const messagePara = document.getElementById("para");
-const msgH = document.getElementById("h");
+let clicked = [];   // store clicked image elements
+let finalImages = []; // random 6 images with 1 duplicate
 
-function loadImages() {
-  const duplicateImg = imageList[Math.floor(Math.random() * imageList.length)];
-  shuffled = [...imageList, duplicateImg];
+// STEP 1: Generate random 6 images + 1 duplicate
+function generateImages() {
+  container.innerHTML = "";
+  clicked = [];
+  para.innerText = "";
+  
+  let randomIndex = Math.floor(Math.random() * imagesArr.length);
+  let duplicateImage = imagesArr[randomIndex];
 
-  shuffled.sort(() => Math.random() - 0.5);
+  // 5 unique + 1 duplicate
+  finalImages = [...imagesArr, duplicateImage];
 
-  imagesDiv.innerHTML = "";
-  shuffled.forEach((src, index) => {
-    const img = document.createElement("img");
+  // shuffle
+  finalImages.sort(() => Math.random() - 0.5);
+
+  // create image elements
+  finalImages.forEach(src => {
+    let img = document.createElement("img");
     img.src = src;
-    img.classList.add("img");
-    img.dataset.index = index;
-
-    img.addEventListener("click", () => selectImage(img));
-
-    imagesDiv.appendChild(img);
+    img.addEventListener("click", () => imageClicked(img));
+    container.appendChild(img);
   });
+
+  resetBtn.style.display = "none";
+  verifyBtn.style.display = "none";
 }
 
-function selectImage(img) {
-  if (selectedImages.length === 2) return;
+generateImages();
+
+// Image clicked handler
+function imageClicked(img) {
+  if (clicked.length === 2) return;  // Do not allow more than 2 clicks
 
   img.classList.add("selected");
-  selectedImages.push(img);
 
-  resetBtn.style.display = "block"; // show reset after 1st click
+  clicked.push(img);
+  resetBtn.style.display = "inline-block";
 
-  if (selectedImages.length === 2) {
-    const [img1, img2] = selectedImages;
-
-    // Only show verify if identical
-    if (img1.src === img2.src) {
-      verifyBtn.style.display = "block";
-    }
+  if (clicked.length === 2) {
+    verifyBtn.style.display = "inline-block";
   }
 }
 
-resetBtn.addEventListener("click", resetAll);
-verifyBtn.addEventListener("click", verifySelection);
-
-function resetAll() {
-  selectedImages = [];
+// Reset button
+resetBtn.addEventListener("click", () => {
+  clicked = [];
+  para.innerText = "";
   verifyBtn.style.display = "none";
   resetBtn.style.display = "none";
-  messagePara.innerText = "";
-  msgH.innerText =
-    "Please click on the identical tiles to verify that you are not a robot.";
 
-  document.querySelectorAll("img").forEach((img) => {
-    img.classList.remove("selected");
-  });
+  let imgs = container.querySelectorAll("img");
+  imgs.forEach(i => i.classList.remove("selected"));
+});
 
-  loadImages();
-}
-
-function verifySelection() {
+// Verify button
+verifyBtn.addEventListener("click", () => {
   verifyBtn.style.display = "none";
 
-  const [img1, img2] = selectedImages;
-
-  if (img1.src === img2.src) {
-    messagePara.innerText = "You are a human. Congratulations!";
+  if (clicked.length === 2 && clicked[0].src === clicked[1].src) {
+    para.innerText = "You are a human. Congratulations!";
   } else {
-    messagePara.innerText =
-      "We can't verify you as a human. You selected the non-identical tiles.";
+    para.innerText = "We can't verify you as a human. You selected the non-identical tiles.";
   }
-}
-
-loadImages();
+});
